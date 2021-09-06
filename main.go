@@ -2,11 +2,10 @@ package main
 
 import (
 	"com.lierda.wsn.vc/core"
-	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/axgle/mahonia"
 	"github.com/flopp/go-findfont"
@@ -16,45 +15,90 @@ import (
 	"strings"
 )
 
+var mainWindow fyne.Window
+
 func main() {
 	defer os.Unsetenv("FYNE_FONT")
 	myApp := app.New()
-	mainWindow := myApp.NewWindow("菜单")
-	layout := container.NewVBox(SerialOpView()...)
-	mainWindow.SetContent(layout)
-	mainWindow.Resize(fyne.NewSize(800, 500))
-	mainWindow.FixedSize()
+	mainWindow = myApp.NewWindow("菜单")
+	box := container.NewMax(SerialOpView()...)
+	mainWindow.SetContent(box)
+	mainWindow.Resize(fyne.NewSize(800, 600))
 	mainWindow.ShowAndRun()
 }
 
 func SerialOpView() []fyne.CanvasObject {
-	boundString := binding.NewString()
-	label := widget.NewLabelWithData(boundString)
-	label.Resize(fyne.Size{Height: 30})
+	currentPort := ""
 	contents := ""
+	entry := widget.NewMultiLineEntry()
+	entry.MultiLine = true
+	entry.OnChanged = func(s string) {
+		contents = s
+	}
+	entry.Wrapping = fyne.TextTruncate
+	var button *widget.Button
+	var (
+		openPortText  = "打开串口"
+		closePortText = "关闭串口"
+	)
+	button = widget.NewButton(openPortText, func() {
+		if button.Text == openPortText {
+			if currentPort == "" {
+				dialog.NewInformation("Warning", "请选择串口!!!", mainWindow).Show()
+				return
+			}
+			err := core.OpenPort(currentPort)
+			if err != nil {
+				dialog.NewInformation("Error", err.Error(), mainWindow).Show()
+				return
+			}
+			button.SetText(closePortText)
+		} else {
+			core.ClosePort()
+			button.SetText(openPortText)
+		}
+	})
+	// read serial data
 	go func() {
 		for {
 			select {
 			case msg := <-core.Msg:
 				decoder := mahonia.NewDecoder("gbk")
-				log.Println(decoder.ConvertString(msg))
-				contents = contents + msg + "/n"
-				//label
+				contents += decoder.ConvertString(msg) + "\n"
+				entry.SetText(contents)
+				log.Println(entry.CursorRow)
 			}
 		}
 	}()
-	return []fyne.CanvasObject{
-		widget.NewSelect(core.ReadSerialList(), func(s string) {
-			log.Println("Com Choose:", s)
-			err := core.OpenPort(s)
-			if err != nil {
-				fyne.NewNotification("error", err.Error())
+
+	selectWidget := widget.NewSelect(core.ReadSerialList(), func(s string) {
+		log.Println("Com Choose:", s)
+		currentPort = s
+	})
+	withoutLayout := container.NewMax(entry)
+	sendContent := ""
+	bottom := container.NewVBox(
+		func() fyne.CanvasObject {
+			sendEntry := widget.NewEntry()
+			sendEntry.PlaceHolder = "发送内容"
+			sendEntry.OnChanged = func(s string) {
+				sendContent = s
 			}
-		}),
-		widget.NewButton("打开串口", func() {
-			core.ReadSerialList()
-		}),
-		label,
+			return sendEntry
+		}(),
+		func() fyne.CanvasObject {
+			newButton := widget.NewButton("发送", func() {
+				if core.Write == nil {
+					dialog.NewInformation("Warning", "请打开串口!!!", mainWindow).Show()
+				} else {
+					core.Write(sendContent)
+				}
+			})
+			return newButton
+		}(),
+	)
+	return []fyne.CanvasObject{
+		container.NewBorder(container.NewVBox(selectWidget, button), bottom, nil, nil, withoutLayout),
 	}
 }
 
@@ -81,8 +125,8 @@ func setFont() {
 			}
 		}
 	}
-	fmt.Println("=============")
+	log.Println("=============")
 	log.Println("Set Font:", fontName)
-	fmt.Println("=============")
+	log.Println("=============")
 	os.Setenv("FYNE_FONT", fontName)
 }
