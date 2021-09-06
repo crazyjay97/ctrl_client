@@ -35,7 +35,7 @@ func SerialOpView() []fyne.CanvasObject {
 	entry.OnChanged = func(s string) {
 		contents = s
 	}
-	entry.Wrapping = fyne.TextTruncate
+	entry.Wrapping = fyne.TextWrapWord
 	var button *widget.Button
 	var (
 		openPortText  = "打开串口"
@@ -66,7 +66,9 @@ func SerialOpView() []fyne.CanvasObject {
 				decoder := mahonia.NewDecoder("gbk")
 				contents += decoder.ConvertString(msg) + "\n"
 				entry.SetText(contents)
-				log.Println(entry.CursorRow)
+				log.Println(entry.CursorRow, entry.CursorRow)
+				entry.Refresh()
+				entry.CursorRow = len(strings.Split(contents, "\n"))
 			}
 		}
 	}()
