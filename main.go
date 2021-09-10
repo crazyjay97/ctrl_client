@@ -66,7 +66,6 @@ func SerialOpView() []fyne.CanvasObject {
 				decoder := mahonia.NewDecoder("gbk")
 				contents += decoder.ConvertString(msg) + "\n"
 				entry.SetText(contents)
-				log.Println(entry.CursorRow, entry.CursorRow)
 				entry.Refresh()
 				entry.CursorRow = len(strings.Split(contents, "\n"))
 			}

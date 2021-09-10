@@ -26,10 +26,8 @@ func ClosePort() {
 var Write func(str string) = nil
 
 func OpenPort(port string) error {
-	log.Println(port)
 	ser, err := serial.Open(port, &serial.Mode{BaudRate: 115200})
 	Write = func(str string) {
-		log.Println(str)
 		n, err := ser.Write([]byte(str + "\n\r"))
 		log.Println(err)
 		Msg <- util.CurrentTimeString() + " S: " + str

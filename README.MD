@@ -1,8 +1,14 @@
-# 版本控制器-上位机
-
-
+# Simple Serial-Port Tool Build By Fyne
 
 ### Command
+
+##### Run
+
+```shell
+go run .\main.go
+```
+
+##### Build Without Windows Cmd's Window
 
 ```shell
 go build  -ldflags -H=windowsgui .\main.go
