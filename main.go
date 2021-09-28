@@ -21,6 +21,9 @@ func main() {
 	defer os.Unsetenv("FYNE_FONT")
 	myApp := app.New()
 	mainWindow = myApp.NewWindow("菜单")
+	mainWindow.SetOnClosed(func() {
+		log.Println("===")
+	})
 	box := container.NewMax(SerialOpView()...)
 	mainWindow.SetContent(box)
 	mainWindow.Resize(fyne.NewSize(800, 600))
@@ -28,6 +31,7 @@ func main() {
 }
 
 func SerialOpView() []fyne.CanvasObject {
+	progress := widget.NewProgressBar()
 	currentPort := ""
 	contents := ""
 	entry := widget.NewMultiLineEntry()
@@ -43,15 +47,25 @@ func SerialOpView() []fyne.CanvasObject {
 	)
 	button = widget.NewButton(openPortText, func() {
 		if button.Text == openPortText {
-			if currentPort == "" {
+			/*if currentPort == "" {
 				dialog.NewInformation("Warning", "请选择串口!!!", mainWindow).Show()
 				return
-			}
-			err := core.OpenPort(currentPort)
-			if err != nil {
-				dialog.NewInformation("Error", err.Error(), mainWindow).Show()
-				return
-			}
+			}*/
+			process := make(chan int)
+			go core.WiSunLoader(".test3", false, false, process)
+			go func() {
+				for {
+					select {
+					case val := <-process:
+						progress.SetValue(float64(val) / float64(100))
+						progress.Refresh()
+						log.Println("getValue", val)
+						if val == 100 {
+							return
+						}
+					}
+				}
+			}()
 			button.SetText(closePortText)
 		} else {
 			core.ClosePort()
@@ -99,7 +113,7 @@ func SerialOpView() []fyne.CanvasObject {
 		}(),
 	)
 	return []fyne.CanvasObject{
-		container.NewBorder(container.NewVBox(selectWidget, button), bottom, nil, nil, withoutLayout),
+		container.NewBorder(container.NewVBox(selectWidget, button, progress), bottom, nil, nil, withoutLayout),
 	}
 }
 
