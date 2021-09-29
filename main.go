@@ -21,6 +21,9 @@ func main() {
 	defer os.Unsetenv("FYNE_FONT")
 	myApp := app.New()
 	mainWindow = myApp.NewWindow("菜单")
+	mainWindow.SetCloseIntercept(func() {
+		log.Println("===")
+	})
 	mainWindow.SetOnClosed(func() {
 		log.Println("===")
 	})

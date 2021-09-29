@@ -11,7 +11,7 @@ import (
 
 var Token string
 
-const baseUrl = "http://127.0.0.1:20219/api/v1/"
+const baseUrl = "http://192.168.31.80:20219/api/v1/"
 
 func Post(url string, data interface{}) ([]byte, int) {
 	jsonData, _ := json.Marshal(data)

@@ -110,7 +110,10 @@ func process(v *FirmwareView, item core.FirmwareTree) {
 	if err != nil {
 		log.Println(err)
 	}
-	defer os.Remove(util.HDF + string(os.PathSeparator) + file.Name())
+	defer func() {
+		file.Close()
+		os.Remove(file.Name())
+	}()
 	query := url.Values{}
 	query.Add("id", strconv.Itoa(item.Id))
 	util.GetDownload("firmware/download", query, func(reader io.Reader) {

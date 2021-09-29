@@ -39,6 +39,11 @@ func (v *LoginView) RenderViewContent() {
 	passwordEntry := widget.NewPasswordEntry()
 	passwordEntry.PlaceHolder = "请输入密码"
 	loginBtn := widget.NewButton("login", func() {
+		defer func() {
+			if err := recover(); err != nil {
+				dialog.NewInformation("", "登录失败!!!", v.window).Show()
+			}
+		}()
 		res := core.Login(core.LoginRequest{Username: usernameEntry.Text, Password: passwordEntry.Text})
 		if res != nil {
 			util.Token = res.Data.Token
@@ -52,7 +57,7 @@ func (v *LoginView) RenderViewContent() {
 			dialog.NewInformation("", "登录失败!!!", v.window).Show()
 		}
 	})
-	asset, _ := assets.Asset("static/lierda.png")
+	asset, _ := assets.Asset("static/lierda_black.png")
 	logo := canvas.NewImageFromResource(fyne.NewStaticResource("static/lierda.png", asset))
 	logo.FillMode = canvas.ImageFillOriginal
 	loginFormBox.Add(container.NewCenter(container.NewMax(logo)))

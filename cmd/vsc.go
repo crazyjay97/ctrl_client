@@ -24,6 +24,16 @@ func init() {
 	setFont()
 	mkHidFolder()
 	openFile()
+	deleteAllFile()
+}
+
+func deleteAllFile() {
+	dir, err := ioutil.ReadDir(util.HDF)
+	if err == nil {
+		for _, info := range dir {
+			os.Remove(util.HDF + string(os.PathSeparator) + info.Name())
+		}
+	}
 }
 
 func mkHidFolder() {
@@ -33,7 +43,6 @@ func mkHidFolder() {
 	}
 	namePtr, _ := syscall.UTF16PtrFromString(util.HDF)
 	syscall.SetFileAttributes(namePtr, syscall.FILE_ATTRIBUTE_HIDDEN)
-
 }
 
 func openFile() {
