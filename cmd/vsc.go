@@ -1,6 +1,8 @@
 package main
 
 import (
+	"com.lierda.wsn.vc/assets"
+	"com.lierda.wsn.vc/util"
 	"com.lierda.wsn.vc/views"
 	"fyne.io/fyne/v2/app"
 	"github.com/flopp/go-findfont"
@@ -8,6 +10,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"syscall"
 )
 
 func main() {
@@ -19,6 +22,27 @@ func main() {
 
 func init() {
 	setFont()
+	mkHidFolder()
+	openFile()
+}
+
+func mkHidFolder() {
+	_, err := os.Stat(util.HDF)
+	if err != nil && !os.IsExist(err) {
+		os.Mkdir(util.HDF, os.ModeDir)
+	}
+	namePtr, _ := syscall.UTF16PtrFromString(util.HDF)
+	syscall.SetFileAttributes(namePtr, syscall.FILE_ATTRIBUTE_HIDDEN)
+
+}
+
+func openFile() {
+	asset, _ := assets.Asset("static/wisun-loader.exe")
+	_, err := os.Stat(util.EXE_PATH)
+	if err != nil && !os.IsExist(err) {
+		file, _ := os.Create(util.EXE_PATH)
+		file.Write(asset)
+	}
 }
 
 func setFont() {

@@ -79,7 +79,6 @@ var isBLMode = false
 func confirm(v *FirmwareView, item core.FirmwareTree) {
 	var confirmBtn *widget.Button
 	selectWidget := widget.NewSelect(core.ReadSerialList(), func(s string) {
-		log.Println("Com Choose:", s)
 		currentPort = s
 		if s != "" {
 			confirmBtn.Enable()
@@ -107,17 +106,17 @@ func confirm(v *FirmwareView, item core.FirmwareTree) {
 
 func process(v *FirmwareView, item core.FirmwareTree) {
 	bar := widget.NewProgressBar()
-	file, err := ioutil.TempFile(".", "vsc-*.d")
+	file, err := ioutil.TempFile(util.HDF, "vsc-*.d")
 	if err != nil {
 		log.Println(err)
 	}
-	defer os.Remove(file.Name())
+	defer os.Remove(util.HDF + string(os.PathSeparator) + file.Name())
 	query := url.Values{}
 	query.Add("id", strconv.Itoa(item.Id))
 	util.GetDownload("firmware/download", query, func(reader io.Reader) {
 		util.DecryptFile(reader, file)
 		process := make(chan int)
-		go core.WiSunLoader("vsc-402840195.d", false, isBLMode, process, currentPort[3:])
+		go core.WiSunLoader(file.Name(), false, isBLMode, process, currentPort[3:])
 		customDialog := dialog.NewCustomWithEvent("烧录中", "开始烧录", bar, v.window, func() {
 
 		})

@@ -2,6 +2,7 @@ package core
 
 import (
 	"bufio"
+	"com.lierda.wsn.vc/util"
 	"fmt"
 	"log"
 	"os/exec"
@@ -21,7 +22,7 @@ func WiSunLoader(path string, eraseAll bool, blMode bool, process chan int, port
 	if blMode {
 		args = append(args, "-s")
 	}
-	cmd := exec.Command("wisun-loader", args...)
+	cmd := exec.Command(util.EXE_PATH, args...)
 	fmt.Println(cmd.Args)
 	stdout, err := cmd.StdoutPipe()
 	cmd.Stderr = cmd.Stdout
@@ -40,7 +41,10 @@ func WiSunLoader(path string, eraseAll bool, blMode bool, process chan int, port
 		log.Println(output)
 		substr := "progress value = "
 		idx := strings.LastIndex(output, substr)
-		if strings.Index(output, "ERROR") != -1 {
+		if strings.Index(output, "ERROR") != -1 ||
+			strings.Index(output, "Error") != -1 ||
+			strings.Index(output, "PermissionError") != -1 ||
+			strings.Index(output, "FileNotFoundError") != -1 {
 			cmd.Process.Kill()
 			process <- -1
 			return

@@ -9,7 +9,6 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"log"
 )
 
 type LoginView struct {
@@ -20,6 +19,11 @@ type LoginView struct {
 func (v *LoginView) Launch(app fyne.App) {
 	v.app = app
 	v.window = app.NewWindow("登录")
+	v.window.SetMainMenu(fyne.NewMainMenu(
+		fyne.NewMenu("菜单",
+			fyne.NewMenuItem("注销", func() {
+				v.RenderViewContent()
+			}))))
 	v.window.Resize(fyne.NewSize(400, 300))
 	v.RenderViewContent()
 	v.window.CenterOnScreen()
@@ -35,7 +39,6 @@ func (v *LoginView) RenderViewContent() {
 	passwordEntry := widget.NewPasswordEntry()
 	passwordEntry.PlaceHolder = "请输入密码"
 	loginBtn := widget.NewButton("login", func() {
-		log.Println(usernameEntry.Text, passwordEntry.Text)
 		res := core.Login(core.LoginRequest{Username: usernameEntry.Text, Password: passwordEntry.Text})
 		if res != nil {
 			util.Token = res.Data.Token

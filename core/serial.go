@@ -9,9 +9,6 @@ import (
 
 func ReadSerialList() []string {
 	portList, _ := serial.GetPortsList()
-	for _, port := range portList {
-		log.Println(port)
-	}
 	return portList
 }
 

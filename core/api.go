@@ -3,7 +3,6 @@ package core
 import (
 	"com.lierda.wsn.vc/util"
 	"encoding/json"
-	"log"
 	"time"
 )
 
@@ -54,9 +53,8 @@ type FirmwareTreeResponse struct {
 }
 
 func GetFirmwareTree() FirmwareTreeResponse {
-	res, code := util.Get("firmware/tree", nil)
+	res, _ := util.Get("firmware/tree", nil)
 	firmwareTreeResponse := FirmwareTreeResponse{}
 	json.Unmarshal(res, &firmwareTreeResponse)
-	log.Println(string(res), code)
 	return firmwareTreeResponse
 }

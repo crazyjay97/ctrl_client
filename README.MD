@@ -13,3 +13,7 @@ go run .\main.go
 ```shell
 go build  -ldflags -H=windowsgui .\main.go
 ```
+
+```shell
+go-bindata -o=".\assets\assets.go" -pkg=assets "./static/..."
+```

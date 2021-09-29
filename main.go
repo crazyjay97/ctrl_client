@@ -52,14 +52,14 @@ func SerialOpView() []fyne.CanvasObject {
 				return
 			}*/
 			process := make(chan int)
-			go core.WiSunLoader(".test3", false, false, process)
+			//go core.WiSunLoader(".test3", false, false, process)
 			go func() {
 				for {
 					select {
 					case val := <-process:
 						progress.SetValue(float64(val) / float64(100))
 						progress.Refresh()
-						log.Println("getValue", val)
+						log.Println("get value", val)
 						if val == 100 {
 							return
 						}
