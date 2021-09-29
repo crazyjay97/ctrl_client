@@ -45,6 +45,8 @@ func (v *LoginView) RenderViewContent() {
 				firmwareView.Launch(v.app, v.window)
 			})
 			dialog.Show()
+		} else {
+			dialog.NewInformation("", "登录失败!!!", v.window).Show()
 		}
 	})
 	asset, _ := assets.Asset("static/lierda.png")

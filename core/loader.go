@@ -9,11 +9,11 @@ import (
 	"strings"
 )
 
-func WiSunLoader(path string, eraseAll bool, blMode bool, process chan int) {
+func WiSunLoader(path string, eraseAll bool, blMode bool, process chan int, port string) {
 	var args = []string{
 		path,
 		"-p",
-		"3",
+		port,
 	}
 	if eraseAll {
 		args = append(args, "-e")
@@ -37,8 +37,14 @@ func WiSunLoader(path string, eraseAll bool, blMode bool, process chan int) {
 	for {
 		line, _, err := reader.ReadLine()
 		output := string(line)
+		log.Println(output)
 		substr := "progress value = "
 		idx := strings.LastIndex(output, substr)
+		if strings.Index(output, "ERROR") != -1 {
+			cmd.Process.Kill()
+			process <- -1
+			return
+		}
 		if idx != -1 {
 			v, err := strconv.Atoi(output[idx+len(substr):])
 			if err == nil {

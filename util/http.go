@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -35,9 +36,27 @@ func Get(url string, params url.Values) ([]byte, int) {
 	request.Header.Set("Authorization", Token)
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
-		panic(err)
 	}
 	defer resp.Body.Close()
 	result, _ := ioutil.ReadAll(resp.Body)
 	return result, resp.StatusCode
+}
+
+func GetDownload(url string, params url.Values, call func(reader io.Reader)) error {
+	request, _ := http.NewRequest("GET", baseUrl+url, nil)
+	if params != nil {
+		query := request.URL.Query()
+		for key, _ := range params {
+			query.Add(key, params.Get(key))
+		}
+		request.URL.RawQuery = query.Encode()
+	}
+	request.Header.Set("Authorization", Token)
+	resp, err := http.DefaultClient.Do(request)
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+	call(resp.Body)
+	return nil
 }
