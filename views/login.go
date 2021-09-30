@@ -18,12 +18,15 @@ type LoginView struct {
 
 func (v *LoginView) Launch(app fyne.App) {
 	v.app = app
+	asset, _ := assets.Asset("static/lierda_black.png")
+	v.app.SetIcon(fyne.NewStaticResource("static/lierda.png", asset))
 	v.window = app.NewWindow("登录")
 	v.window.SetMainMenu(fyne.NewMainMenu(
 		fyne.NewMenu("菜单",
 			fyne.NewMenuItem("注销", func() {
 				v.RenderViewContent()
 			}))))
+
 	v.window.Resize(fyne.NewSize(400, 300))
 	v.RenderViewContent()
 	v.window.CenterOnScreen()
