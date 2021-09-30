@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 func WiSunLoader(path string, eraseAll bool, blMode bool, process chan int, port string) {
@@ -23,6 +24,8 @@ func WiSunLoader(path string, eraseAll bool, blMode bool, process chan int, port
 		args = append(args, "-s")
 	}
 	cmd := exec.Command(util.EXE_PATH, args...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+
 	fmt.Println(cmd.Args)
 	stdout, err := cmd.StdoutPipe()
 	cmd.Stderr = cmd.Stdout
