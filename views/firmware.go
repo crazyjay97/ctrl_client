@@ -125,6 +125,7 @@ func process(v *FirmwareView, item core.FirmwareTree) {
 		})
 		customDialog.Resize(fyne.NewSize(300, 30))
 		customDialog.Show()
+		util.InProcess = true
 		for {
 			select {
 			case val := <-process:
@@ -132,10 +133,12 @@ func process(v *FirmwareView, item core.FirmwareTree) {
 				bar.Refresh()
 				log.Println("getValue", val)
 				if val == 100 {
+					util.InProcess = false
 					customDialog.Hide()
 					dialog.NewInformation("消息", "烧录成功", v.window).Show()
 					return
 				} else if val == -1 {
+					util.InProcess = false
 					customDialog.Hide()
 					dialog.NewInformation("错误", "烧录失败", v.window).Show()
 					return

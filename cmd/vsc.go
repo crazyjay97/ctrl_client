@@ -18,6 +18,9 @@ func main() {
 	myApp := app.New()
 	view := views.LoginView{}
 	view.Launch(myApp)
+	<-util.Done
+	deleteAllFile()
+	log.Println("Done")
 }
 
 func init() {

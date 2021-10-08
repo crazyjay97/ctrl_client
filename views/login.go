@@ -12,7 +12,7 @@ import (
 )
 
 type LoginView struct {
-	window fyne.Window
+	Window fyne.Window
 	app    fyne.App
 }
 
@@ -20,17 +20,25 @@ func (v *LoginView) Launch(app fyne.App) {
 	v.app = app
 	asset, _ := assets.Asset("static/lierda_black.png")
 	v.app.SetIcon(fyne.NewStaticResource("static/lierda.png", asset))
-	v.window = app.NewWindow("登录")
-	v.window.SetMainMenu(fyne.NewMainMenu(
+	v.Window = app.NewWindow("登录")
+	v.Window.SetCloseIntercept(func() {
+		if util.InProcess {
+
+		} else {
+			close(util.Done)
+			v.Window.Close()
+		}
+	})
+	v.Window.SetMainMenu(fyne.NewMainMenu(
 		fyne.NewMenu("菜单",
 			fyne.NewMenuItem("注销", func() {
 				v.RenderViewContent()
 			}))))
 
-	v.window.Resize(fyne.NewSize(400, 300))
+	v.Window.Resize(fyne.NewSize(400, 300))
 	v.RenderViewContent()
-	v.window.CenterOnScreen()
-	v.window.ShowAndRun()
+	v.Window.CenterOnScreen()
+	v.Window.ShowAndRun()
 }
 
 func (v *LoginView) RenderViewContent() {
@@ -44,20 +52,20 @@ func (v *LoginView) RenderViewContent() {
 	loginBtn := widget.NewButton("login", func() {
 		defer func() {
 			if err := recover(); err != nil {
-				dialog.NewInformation("", "登录失败!!!", v.window).Show()
+				dialog.NewInformation("", "登录失败!!!", v.Window).Show()
 			}
 		}()
 		res := core.Login(core.LoginRequest{Username: usernameEntry.Text, Password: passwordEntry.Text})
 		if res != nil {
 			util.Token = res.Data.Token
-			dialog := dialog.NewInformation("", "登录成功!!!", v.window)
+			dialog := dialog.NewInformation("", "登录成功!!!", v.Window)
 			dialog.SetOnClosed(func() {
 				firmwareView := &FirmwareView{}
-				firmwareView.Launch(v.app, v.window)
+				firmwareView.Launch(v.app, v.Window)
 			})
 			dialog.Show()
 		} else {
-			dialog.NewInformation("", "登录失败!!!", v.window).Show()
+			dialog.NewInformation("", "登录失败!!!", v.Window).Show()
 		}
 	})
 	asset, _ := assets.Asset("static/lierda_black.png")
@@ -68,5 +76,5 @@ func (v *LoginView) RenderViewContent() {
 	loginFormBox.Add(container.NewMax(passwordEntry))
 	loginFormBox.Add(container.NewCenter(loginBtn))
 	mainLayout.Add(container.NewBorder(nil, nil, nil, nil, loginFormBox))
-	v.window.SetContent(mainLayout)
+	v.Window.SetContent(mainLayout)
 }
